@@ -30,6 +30,19 @@ jobs:
       - name: Extract project
         run: unzip -o Download_Aplikasi_Catatan_Mingguan.zip -d .
 
+      - name: Fix JVM target compatibility
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p = Path("app/build.gradle")
+          s = p.read_text()
+          s = s.replace(
+              "    compileSdk 35\n",
+              "    compileSdk 35\n\n    compileOptions {\n        sourceCompatibility JavaVersion.VERSION_17\n        targetCompatibility JavaVersion.VERSION_17\n    }\n\n    kotlinOptions {\n        jvmTarget = '17'\n    }\n"
+          )
+          p.write_text(s)
+          PY
+
       - name: Build APK
         run: gradle :app:assembleDebug
 
